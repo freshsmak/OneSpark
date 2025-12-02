@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { insertSparkSchema } from "@shared/schema";
+import { generateProductConcept } from "./ai";
 
 export async function registerRoutes(
   httpServer: Server,
@@ -78,6 +79,26 @@ export async function registerRoutes(
     } catch (error) {
       console.error("Error fetching spark:", error);
       res.status(500).json({ message: "Failed to fetch spark" });
+    }
+  });
+
+  // AI-powered product concept generation
+  app.post("/api/generate-spark", async (req, res) => {
+    try {
+      const { category, painPoints } = req.body;
+      
+      if (!category) {
+        return res.status(400).json({ message: "Category is required" });
+      }
+      
+      const concept = await generateProductConcept(category, painPoints || []);
+      res.json(concept);
+    } catch (error: any) {
+      console.error("Error generating AI spark:", error);
+      res.status(500).json({ 
+        message: "Failed to generate product concept",
+        error: error.message 
+      });
     }
   });
 

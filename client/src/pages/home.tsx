@@ -2,13 +2,14 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import confetti from "canvas-confetti";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { generateSpark, SparkResult } from "@/lib/spark-engine";
+import { generateSpark, generateSparkWithAI, SparkResult } from "@/lib/spark-engine";
 import { ProductCard } from "@/components/spark-card";
 import { HistoryDrawer } from "@/components/history-drawer";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { Sparkles, RefreshCw, Zap, LogOut } from "lucide-react";
+import { Sparkles, RefreshCw, Zap, LogOut, Bot } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import type { Spark } from "@shared/schema";
@@ -39,6 +40,7 @@ export default function Home() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [result, setResult] = useState<SparkResult | null>(null);
   const [loadingStep, setLoadingStep] = useState(0);
+  const [useAI, setUseAI] = useState(true);
 
   // Load user's saved sparks
   const { data: savedSparks = [] } = useQuery<Spark[]>({
@@ -119,18 +121,18 @@ export default function Home() {
     setLoadingStep(0);
 
     try {
-      const data = await generateSpark();
+      const data = useAI ? await generateSparkWithAI() : await generateSpark();
       setResult(data);
       
       // Save to database
       saveSpark.mutate(data);
       
-      // Trigger confetti
+      // Trigger confetti with extra pizzazz for AI-generated
       confetti({
-        particleCount: 100,
+        particleCount: useAI ? 150 : 100,
         spread: 70,
         origin: { y: 0.6 },
-        colors: ['#ff0099', '#00ffff', '#ffffff']
+        colors: useAI ? ['#ff0099', '#00ffff', '#ffff00', '#ffffff'] : ['#ff0099', '#00ffff', '#ffffff']
       });
       
     } catch (error) {
@@ -205,16 +207,34 @@ export default function Home() {
               animate={{ scale: 1, opacity: 1 }}
               className="flex flex-col items-center justify-center flex-1"
             >
+              {/* AI Mode Toggle */}
+              <div className="flex items-center gap-3 mb-8 bg-black/30 backdrop-blur-md px-4 py-2 rounded-full border border-white/10">
+                <span className={`text-sm font-medium transition-colors ${!useAI ? 'text-white' : 'text-white/40'}`}>
+                  Fast
+                </span>
+                <Switch
+                  checked={useAI}
+                  onCheckedChange={setUseAI}
+                  className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-primary data-[state=checked]:to-secondary"
+                  data-testid="toggle-ai-mode"
+                />
+                <span className={`text-sm font-medium flex items-center gap-1 transition-colors ${useAI ? 'text-white' : 'text-white/40'}`}>
+                  <Bot className="w-4 h-4" />
+                  Claude AI
+                </span>
+              </div>
+              
               <Button 
                 size="lg" 
                 onClick={handleGenerate}
                 className="h-20 px-12 text-xl rounded-full bg-white text-black hover:bg-gray-200 hover:scale-105 transition-all duration-300 shadow-[0_0_40px_-10px_rgba(255,255,255,0.5)] group"
+                data-testid="button-generate"
               >
                 <Zap className="mr-2 w-6 h-6 fill-black group-hover:text-primary transition-colors" />
                 Ignite Spark
               </Button>
               <p className="mt-6 text-sm text-white/40 font-mono">
-                Press to generate a novel product concept
+                {useAI ? 'Claude AI will generate a novel concept in real-time' : 'Quick generation from pre-built concept library'}
               </p>
             </motion.div>
           )}

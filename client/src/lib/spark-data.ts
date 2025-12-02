@@ -13,6 +13,14 @@ import posturePingImg from '@assets/generated_images/postureping_posture_sensor.
 import shedShieldImg from '@assets/generated_images/shedshield_pet_vest.png';
 import bandMateImg from '@assets/generated_images/bandmate_smart_resistance_bands.png';
 import powerPortImg from '@assets/generated_images/powerport_travel_adapter.png';
+import zenPodImg from '@assets/generated_images/zenpod_meditation_pod.png';
+import brewGeniusImg from '@assets/generated_images/brewgenius_smart_coffee_maker.png';
+import aquaRemindImg from '@assets/generated_images/aquaremind_smart_water_bottle.png';
+import foldFitImg from '@assets/generated_images/foldfit_compact_home_gym.png';
+import lullaLightImg from '@assets/generated_images/lullalight_baby_monitor.png';
+import grillMasterImg from '@assets/generated_images/grillmaster_smart_thermometer.png';
+import plantPalImg from '@assets/generated_images/plantpal_smart_planter.png';
+import focusDenImg from '@assets/generated_images/focusden_privacy_booth.png';
 
 export interface PainPoint {
   pain: string;
@@ -92,6 +100,48 @@ export const PAIN_POINTS_DB: Record<string, PainPoint[]> = {
     { pain: "Neck pillows are bulky and uncomfortable", source: "Amazon reviews", intensity: "high" },
     { pain: "Jet lag ruins first days of trips", source: "Frequent flyer forums", intensity: "high" },
     { pain: "Lost luggage anxiety", source: "Travel communities", intensity: "medium" },
+  ],
+  "baby products": [
+    { pain: "Strollers are bulky and hard to fold one-handed", source: "Parent forums", intensity: "high" },
+    { pain: "Baby monitors have terrible connection", source: "Amazon reviews", intensity: "high" },
+    { pain: "Bottles cause gas and colic", source: "Parent communities", intensity: "high" },
+    { pain: "Diaper changes at night disturb everyone's sleep", source: "Reddit parenting", intensity: "medium" },
+    { pain: "Too many products with too few uses", source: "Minimalist parents", intensity: "medium" },
+  ],
+  "coffee accessories": [
+    { pain: "Coffee goes cold too fast", source: "Reddit coffee", intensity: "high" },
+    { pain: "Grinding beans is noisy and messy", source: "Home barista forums", intensity: "medium" },
+    { pain: "Hard to replicate cafe-quality at home", source: "Coffee enthusiasts", intensity: "high" },
+    { pain: "Pour-over is too time-consuming for mornings", source: "Productivity blogs", intensity: "medium" },
+    { pain: "Cleaning espresso machines is a chore", source: "Amazon reviews", intensity: "high" },
+  ],
+  "water bottles": [
+    { pain: "Forget to drink water throughout the day", source: "Health forums", intensity: "high" },
+    { pain: "Bottles leak in bags", source: "Amazon reviews", intensity: "high" },
+    { pain: "Hard to clean narrow openings", source: "Product reviews", intensity: "medium" },
+    { pain: "Plastic bottles retain odors", source: "Reddit", intensity: "medium" },
+    { pain: "Ice melts too fast in summer", source: "Outdoor communities", intensity: "medium" },
+  ],
+  "plant care": [
+    { pain: "Forget to water plants and they die", source: "Plant parent forums", intensity: "high" },
+    { pain: "Don't know how much light plants need", source: "Reddit plants", intensity: "medium" },
+    { pain: "Overwatering is just as bad as underwatering", source: "Gardening blogs", intensity: "high" },
+    { pain: "Pests appear and spread before you notice", source: "Plant communities", intensity: "medium" },
+    { pain: "Repotting is messy and stressful for plants", source: "YouTube comments", intensity: "medium" },
+  ],
+  "grilling tools": [
+    { pain: "Can't tell when meat is perfectly done", source: "BBQ forums", intensity: "high" },
+    { pain: "Grill grates are hard to clean", source: "Amazon reviews", intensity: "high" },
+    { pain: "Tools rust after one season outside", source: "Product reviews", intensity: "medium" },
+    { pain: "Flare-ups burn food unexpectedly", source: "Cooking communities", intensity: "medium" },
+    { pain: "Charcoal takes forever to heat up", source: "Reddit grilling", intensity: "high" },
+  ],
+  "meditation aids": [
+    { pain: "Mind wanders and can't focus", source: "Meditation forums", intensity: "high" },
+    { pain: "Uncomfortable sitting positions", source: "Yoga communities", intensity: "high" },
+    { pain: "Apps feel impersonal and robotic", source: "Reddit meditation", intensity: "medium" },
+    { pain: "Hard to find quiet space at home", source: "WFH forums", intensity: "high" },
+    { pain: "Don't know if you're doing it right", source: "Beginner forums", intensity: "medium" },
   ],
 };
 
@@ -193,6 +243,16 @@ export const PRE_GENERATED_CONCEPTS: Record<string, ProductConcept[]> = {
       vibe: "Apple AirTag meets medical device",
       image: posturePingImg
     },
+    {
+      name: "FocusDen",
+      tagline: "Your private office, anywhere",
+      pain_solved: "Distractions from household noise",
+      description: "A freestanding privacy booth with sound-dampening panels that sets up in minutes. Blocks 85% of ambient noise. Built-in LED lighting and ventilation. Folds flat for storage.",
+      features: ["85% noise reduction", "Built-in ventilation", "LED task lighting", "Folds to 4\" thick"],
+      price_point: "$399",
+      vibe: "Phone booth meets WeWork",
+      image: focusDenImg
+    },
   ],
   "pet products": [
     {
@@ -236,6 +296,16 @@ export const PRE_GENERATED_CONCEPTS: Record<string, ProductConcept[]> = {
       price_point: "$79",
       vibe: "Carbon fiber meets CrossFit",
       image: bandMateImg
+    },
+    {
+      name: "FoldFit",
+      tagline: "The gym that lives in your wall",
+      pain_solved: "Home gym equipment takes too much space",
+      description: "A wall-mounted folding workout station with pull-up bar, resistance anchors, and TRX-style straps. Folds completely flat when not in use. Includes app with 500+ bodyweight exercises.",
+      features: ["Wall-mounted", "20+ exercise options", "Folds to 3\" depth", "500+ guided workouts"],
+      price_point: "$299",
+      vibe: "Murphy bed meets CrossFit box",
+      image: foldFitImg
     }
   ],
   "travel accessories": [
@@ -259,5 +329,95 @@ export const PRE_GENERATED_CONCEPTS: Record<string, ProductConcept[]> = {
       vibe: "Anker meets Swiss Army Knife",
       image: powerPortImg
     }
-  ]
+  ],
+  "baby products": [
+    {
+      name: "LullaLight",
+      tagline: "Monitor, nightlight, and peace of mind",
+      pain_solved: "Baby monitors have terrible connection",
+      description: "An all-in-one baby monitor and smart nightlight. Mesh network technology means zero dead zones. Adaptive glow dims automatically when baby sleeps. Cry analysis tells you if it's hunger, discomfort, or just fussing.",
+      features: ["Mesh network technology", "Cry analysis AI", "Adaptive smart glow", "Sleep tracking"],
+      price_point: "$179",
+      vibe: "Nanit meets Hue",
+      image: lullaLightImg
+    }
+  ],
+  "coffee accessories": [
+    {
+      name: "BrewGenius",
+      tagline: "Barista-quality, one touch",
+      pain_solved: "Hard to replicate cafe-quality at home",
+      description: "Smart pour-over coffee maker that uses precision temperature control and automated water flow to perfectly extract any bean. Learns your taste preferences over time. Connects to your alarm to have coffee ready when you wake.",
+      features: ["Precision temperature", "AI taste learning", "Alarm integration", "Bean recognition"],
+      price_point: "$249",
+      vibe: "Chemex meets Tesla",
+      image: brewGeniusImg
+    }
+  ],
+  "water bottles": [
+    {
+      name: "AquaRemind",
+      tagline: "Hydration that keeps up with you",
+      pain_solved: "Forget to drink water throughout the day",
+      description: "Smart water bottle with LED hydration ring that glows when it's time to drink. Tracks your intake automatically via weight sensors. Syncs with fitness apps and adjusts goals based on activity and weather.",
+      features: ["LED reminder ring", "Auto-tracking", "Fitness app sync", "Weather-adaptive goals"],
+      price_point: "$45",
+      vibe: "HydroFlask meets Fitbit",
+      image: aquaRemindImg
+    }
+  ],
+  "plant care": [
+    {
+      name: "PlantPal",
+      tagline: "The plant parent you've always needed",
+      pain_solved: "Forget to water plants and they die",
+      description: "Self-watering smart planter with soil moisture, light, and nutrient sensors. Mobile app tells you exactly what each plant needs. Reservoir holds 2 weeks of water. Species-specific care profiles.",
+      features: ["2-week water reservoir", "Soil sensors", "Light monitoring", "300+ plant profiles"],
+      price_point: "$65",
+      vibe: "Nest meets botanical garden",
+      image: plantPalImg
+    }
+  ],
+  "grilling tools": [
+    {
+      name: "GrillMaster",
+      tagline: "Perfect doneness, every time",
+      pain_solved: "Can't tell when meat is perfectly done",
+      description: "Wireless smart meat thermometer with 4 probes and predictive cooking algorithms. Tells you exactly when to flip and when it's done. Learns your preferred doneness over time. Works with any grill or oven.",
+      features: ["4 wireless probes", "Predictive algorithms", "Doneness learning", "300ft range"],
+      price_point: "$99",
+      vibe: "Weber meets NASA",
+      image: grillMasterImg
+    }
+  ],
+  "meditation aids": [
+    {
+      name: "ZenPod",
+      tagline: "Your sanctuary, anywhere",
+      pain_solved: "Hard to find quiet space at home",
+      description: "A semi-enclosed meditation chair with built-in binaural audio, aromatherapy diffuser, and subtle vibration for guided breathing. Creates a sensory cocoon that blocks out the world. Folds for storage.",
+      features: ["Binaural audio system", "Aromatherapy built-in", "Haptic breathing guide", "Folds flat"],
+      price_point: "$599",
+      vibe: "Egg chair meets float tank",
+      image: zenPodImg
+    }
+  ],
 };
+
+// Remix building blocks for generating novel combinations
+export const REMIX_ADJECTIVES = [
+  "Smart", "Modular", "Foldable", "Self-cleaning", "AI-powered", "Portable",
+  "Ergonomic", "Wireless", "Sustainable", "Minimalist", "Premium", "Adaptive"
+];
+
+export const REMIX_FEATURES = [
+  "App connectivity", "Voice control", "Subscription refills", "Lifetime warranty",
+  "Auto-adjusting", "Solar-powered", "Noise-canceling", "Temperature-regulating",
+  "Biodegradable materials", "Haptic feedback", "Sleep tracking", "Form correction AI"
+];
+
+export const REMIX_VIBES = [
+  "Apple meets IKEA", "Tesla meets artisan", "Dyson meets spa",
+  "Nintendo meets wellness", "Patagonia meets tech", "Muji meets smart home",
+  "Lego meets luxury", "NASA meets cozy", "Japanese precision meets Nordic simplicity"
+];

@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { SparkResult } from "@/lib/spark-engine";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { ArrowRight, Sparkles, CheckCircle2, AlertCircle } from "lucide-react";
+import { ArrowRight, Sparkles, CheckCircle2, AlertCircle, Bot } from "lucide-react";
 
 interface ProductCardProps {
   result: SparkResult;
@@ -45,11 +45,22 @@ export function ProductCard({ result }: ProductCardProps) {
           </div>
           
           <CardHeader className="relative z-10 pb-2 -mt-12">
-            <div className="flex justify-between items-start mb-4">
+            <div className="flex justify-between items-start mb-4 gap-2">
               <div className="text-xs font-medium tracking-widest text-white/70 uppercase flex items-center gap-2 bg-black/30 backdrop-blur-md px-2 py-1 rounded-full border border-white/10">
                 <Sparkles className="w-3 h-3 text-primary" />
                 One Spark • {category}
               </div>
+              {result.isAIGenerated && (
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="text-[10px] font-bold tracking-widest text-black uppercase flex items-center gap-1 bg-gradient-to-r from-yellow-400 to-amber-500 px-2 py-1 rounded-full shadow-lg"
+                  data-testid="badge-ai-generated"
+                >
+                  <Bot className="w-3 h-3" />
+                  AI
+                </motion.div>
+              )}
             </div>
             
             <motion.h1 

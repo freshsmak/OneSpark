@@ -4,6 +4,15 @@ import pawPodImg from '@assets/generated_images/pawpod_smart_pet_camera.png';
 import wallGymImg from '@assets/generated_images/wallgym_pro_smart_mirror.png';
 import jetNapImg from '@assets/generated_images/jetnap_travel_pillow.png';
 import cleanCutImg from '@assets/generated_images/cleancut_self_cleaning_slicer.png';
+import gripShiftImg from '@assets/generated_images/gripshift_ergonomic_handles.png';
+import weedWalkImg from '@assets/generated_images/weedwalk_standing_weeder.png';
+import stackSmartImg from '@assets/generated_images/stacksmart_modular_kitchen_tool.png';
+import driftBandImg from '@assets/generated_images/driftband_sleep_wristband.png';
+import cableCanvasImg from '@assets/generated_images/cablecanvas_desk_organizer.png';
+import posturePingImg from '@assets/generated_images/postureping_posture_sensor.png';
+import shedShieldImg from '@assets/generated_images/shedshield_pet_vest.png';
+import bandMateImg from '@assets/generated_images/bandmate_smart_resistance_bands.png';
+import powerPortImg from '@assets/generated_images/powerport_travel_adapter.png';
 
 export interface PainPoint {
   pain: string;
@@ -105,7 +114,8 @@ export const PRE_GENERATED_CONCEPTS: Record<string, ProductConcept[]> = {
       description: "Universal ergonomic handle sleeves that retrofit onto any garden tool. Memory foam core with textured silicone grip. Self-heating option for cold mornings. Reduces grip force needed by 40%.",
       features: ["Fits any handle 0.75-1.5\"", "Arthritis-friendly", "Machine washable", "High-vis colors"],
       price_point: "$24 for 3-pack",
-      vibe: "OXO Good Grips meets garden aesthetic"
+      vibe: "OXO Good Grips meets garden aesthetic",
+      image: gripShiftImg
     },
     {
       name: "WeedWalk",
@@ -114,7 +124,8 @@ export const PRE_GENERATED_CONCEPTS: Record<string, ProductConcept[]> = {
       description: "A walking-stick style weeder with a foot pedal mechanism. Step, twist, and the serrated jaws grip and extract weeds root-and-all. Eject button drops weeds into attached collection bag.",
       features: ["No bending required", "Extracts 2\" taproots", "Compostable collection bags", "Adjustable height"],
       price_point: "$65",
-      vibe: "Cane meets precision tool"
+      vibe: "Cane meets precision tool",
+      image: weedWalkImg
     },
   ],
   "kitchen gadgets": [
@@ -135,7 +146,8 @@ export const PRE_GENERATED_CONCEPTS: Record<string, ProductConcept[]> = {
       description: "Modular kitchen tool system with magnetic snap-together components. Spatula head + whisk attachment + scraper = 12 tools in one drawer slot. Premium silicone and stainless steel.",
       features: ["12 configurations", "Dishwasher safe", "Hangs or stores flat", "Lifetime warranty"],
       price_point: "$55",
-      vibe: "LEGO for grown-up kitchens"
+      vibe: "LEGO for grown-up kitchens",
+      image: stackSmartImg
     },
   ],
   "sleep products": [
@@ -146,7 +158,8 @@ export const PRE_GENERATED_CONCEPTS: Record<string, ProductConcept[]> = {
       description: "A soft fabric wristband that wakes you with gradual warming and gentle haptic pulses—no sound. Tracks sleep stages to wake you at the optimal moment within your window. Partner sleeps through it.",
       features: ["Silent wake technology", "Sleep stage tracking", "7-day battery", "Machine washable band"],
       price_point: "$129",
-      vibe: "Spa meets sleep science"
+      vibe: "Spa meets sleep science",
+      image: driftBandImg
     },
     {
       name: "CloudCore",
@@ -167,7 +180,8 @@ export const PRE_GENERATED_CONCEPTS: Record<string, ProductConcept[]> = {
       description: "A desk-mounted fabric panel with integrated cable channels and magnetic attachment points. Route, hide, and swap cables without tools. Built-in wireless charger pad and USB hub.",
       features: ["Tool-free installation", "Magnetic cable clips", "Qi charging zone", "4-port USB hub"],
       price_point: "$89",
-      vibe: "Scandinavian minimalism meets tech utility"
+      vibe: "Scandinavian minimalism meets tech utility",
+      image: cableCanvasImg
     },
     {
       name: "PosturePing",
@@ -176,7 +190,8 @@ export const PRE_GENERATED_CONCEPTS: Record<string, ProductConcept[]> = {
       description: "A tiny, adhesive-free sensor that magnetically clips to your collar. Detects slouching using AI motion analysis. Gently vibrates when you need to correct. App tracks long-term spinal health.",
       features: ["Discreet design", "Haptic feedback", "30-day battery", "Health app integration"],
       price_point: "$49",
-      vibe: "Apple AirTag meets medical device"
+      vibe: "Apple AirTag meets medical device",
+      image: posturePingImg
     },
   ],
   "pet products": [
@@ -197,7 +212,8 @@ export const PRE_GENERATED_CONCEPTS: Record<string, ProductConcept[]> = {
       description: "A wearable pet vest for indoor use made from breathable, hair-trapping mesh. Pets stay cool and comfortable while loose hair is captured in the fabric weave. Shake out outside once a day.",
       features: ["Breathable mesh", "Machine washable", "Calming compression effect", "Size adjustable"],
       price_point: "$35",
-      vibe: "Athleisure for dogs"
+      vibe: "Athleisure for dogs",
+      image: shedShieldImg
     }
   ],
   "fitness equipment": [
@@ -218,7 +234,8 @@ export const PRE_GENERATED_CONCEPTS: Record<string, ProductConcept[]> = {
       description: "Smart resistance bands made from carbon-infused polymer that never snaps or stretches out. Bluetooth sensors in handles track reps, force, and velocity to your phone.",
       features: ["Unbreakable material", "Force tracking", "Smart handles", "Lifetime warranty"],
       price_point: "$79",
-      vibe: "Carbon fiber meets CrossFit"
+      vibe: "Carbon fiber meets CrossFit",
+      image: bandMateImg
     }
   ],
   "travel accessories": [
@@ -239,7 +256,8 @@ export const PRE_GENERATED_CONCEPTS: Record<string, ProductConcept[]> = {
       description: "Universal travel adapter with built-in 10,000mAh power bank. Plug it into the wall to charge devices + internal battery. Unplug and keep charging on the go. Fits 150+ countries.",
       features: ["Integrated power bank", "65W PD Fast Charge", "Global compatibility", "Compact cube design"],
       price_point: "$89",
-      vibe: "Anker meets Swiss Army Knife"
+      vibe: "Anker meets Swiss Army Knife",
+      image: powerPortImg
     }
   ]
 };

@@ -1,0 +1,78 @@
+This is a surprisingly sophisticated "Mad Libs on Steroids" engine. For a Wizard of Oz MVP, this is **excellent**.
+
+You are doing something very smart here: you are using **Regex and structured randomness** to simulate intelligence client-side, which makes the app feel instant and responsive, even if the API call fails or takes too long.
+
+Here is a breakdown of why this code works, where it might break, and how to tighten it up.
+
+### The "Secret Sauce" is in `extractPainPhrase`
+This is the smartest part of your code.
+Raw pain points are messy (e.g., *"I hate when my coffee gets cold too fast"*).
+If you just shoved that into a template, it would look broken: *"Say goodbye to I hate when my coffee gets cold too fast."*
+
+Your Regex extractors clean this up into *"Say goodbye to losing heat."*
+*   **Verdict:** Keep this. Expand the regex patterns as you find new edge cases. This is what makes the "Remix" feel like it understands English.
+
+### The "Coherence Check" (`isCoherentConcept`)
+I love that you added a safety valve.
+```typescript
+// Description should mention something related to the pain
+const painWords = concept.pain_solved.toLowerCase().split(' ');
+const descHasPainRef = painWords.some(w => ... );
+```
+*   **Why it helps:** Since you are picking random mechanisms and random benefits, there is a risk of generating: *"A solution for back pain that uses non-stick coating."*
+*   **Critique:** Checking for *word overlap* is a bit loose.
+*   **Fix:** Ensure your `SOLUTION_MECHANISMS` in `spark-data` are categorized. Don't pull a random mechanism from `default`; pull a random mechanism from `category`.
+
+### The "Artificial Latency"
+```typescript
+await delay(1500); // 1.5 seconds
+```
+*   **Verdict:** This is UX Gold. If the result appears instantly (0ms), users think it's fake/random. If it takes 1.5 seconds, they subconsciously believe the AI is "thinking" or "searching." **Do not remove this.**
+
+---
+
+### Three Risks (and Quick Fixes)
+
+#### 1. The "Frankenstein Product" Risk
+**The Problem:** In `generateDescription`, you pull a random mechanism and a random benefit.
+*   *Scenario:* Category: **Sleep Mask**.
+*   *Mechanism:* "Aerospace-grade aluminum" (randomly picked).
+*   *Result:* "A sleep mask built with aerospace-grade aluminum." (Ouch).
+
+**The Fix:**
+In your `spark-data`, tag your mechanisms with `tags: ['hardware', 'soft-goods', 'tech', 'liquid']`.
+When generating a concept for "Sleep Products," filter mechanisms to only include `soft-goods` or `tech`.
+
+#### 2. The "Image Dissonance" Risk
+**The Problem:** `getCategoryImage` falls back to *any* image in that category.
+If you generate a "Self-Cleaning Water Bottle," but the fallback image is a "Collapsible Coffee Cup" (because they are both in the "Beverage" category), the user will spot the lie immediately.
+
+**The Fix:**
+If you don't have a specific image, **use a placeholder abstract image** (like a blueprint or a blurry silhouette) rather than a wrong specific image. A "Mystery Product" visual is better than the *wrong* visual.
+
+#### 3. The "Template Fatigue"
+**The Problem:** You have about 5 description templates.
+*   *Risk:* If a user clicks "Generate" 10 times, they will see "Designed specifically for..." 3 times. The illusion breaks.
+
+**The Fix:**
+Add a simple counter. If the user has seen Template A, force the engine to pick Template B next.
+
+---
+
+### One Code Optimization
+
+Your `extractPainPhrase` loop is a little heavy. If you scale this, consider exiting early more aggressively.
+
+Also, your `cleanKeywords` list is great, but add these "High Emotion" triggers which work great for marketing copy:
+```typescript
+const cleanKeywords = [
+  // ... your existing list ...
+  "guilt", "waste", "shame", "dread", "panic", "embarrassment"
+];
+```
+*   *Why:* "Say goodbye to waste" or "No more embarrassment" hits harder than "No more clutter."
+
+### Final Verdict
+This is ready to ship as a test. It effectively bridges the gap between "Random Generator" and "AI Intelligence."
+
+**Go live with it.** The feedback you get on the *output quality* will tell you which arrays in `spark-data` need to be expanded.

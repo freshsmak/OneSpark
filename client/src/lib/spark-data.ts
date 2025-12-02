@@ -1,3 +1,10 @@
+import terraGlideImg from '@assets/generated_images/terraglide_rolling_garden_seat.png';
+import cloudCoreImg from '@assets/generated_images/cloudcore_modular_pillow.png';
+import pawPodImg from '@assets/generated_images/pawpod_smart_pet_camera.png';
+import wallGymImg from '@assets/generated_images/wallgym_pro_smart_mirror.png';
+import jetNapImg from '@assets/generated_images/jetnap_travel_pillow.png';
+import cleanCutImg from '@assets/generated_images/cleancut_self_cleaning_slicer.png';
+
 export interface PainPoint {
   pain: string;
   source: string;
@@ -12,6 +19,7 @@ export interface ProductConcept {
   features: string[];
   price_point: string;
   vibe: string;
+  image?: string;
 }
 
 export const CATEGORIES = [
@@ -87,7 +95,8 @@ export const PRE_GENERATED_CONCEPTS: Record<string, ProductConcept[]> = {
       description: "A low-profile wheeled garden seat with built-in tool holsters and a pivoting work tray. Roll from plant to plant without standing up. Ergonomic kneeling pad flips down for ground-level work.",
       features: ["360° swivel seat", "Integrated tool slots", "All-terrain wheels", "Weatherproof cushion"],
       price_point: "$89",
-      vibe: "Gardening meets mobility scooter elegance"
+      vibe: "Gardening meets mobility scooter elegance",
+      image: terraGlideImg
     },
     {
       name: "GripShift",
@@ -116,7 +125,8 @@ export const PRE_GENERATED_CONCEPTS: Record<string, ProductConcept[]> = {
       description: "A mandoline slicer with a built-in cleaning dock. After use, snap it into the dock, add water, and micro-jets blast away residue. UV sanitizes in 60 seconds. Dishwasher-safe backup.",
       features: ["Self-cleaning dock", "5 blade options", "Cut-resistant handle", "Magnetic storage"],
       price_point: "$79",
-      vibe: "Japanese precision meets spa cleanliness"
+      vibe: "Japanese precision meets spa cleanliness",
+      image: cleanCutImg
     },
     {
       name: "StackSmart",
@@ -145,7 +155,8 @@ export const PRE_GENERATED_CONCEPTS: Record<string, ProductConcept[]> = {
       description: "Modular pillow with replaceable air-cell inserts. When loft decreases, swap in fresh cells (subscription). Outer cover is cooling bamboo. Side-sleeper and back-sleeper configurations.",
       features: ["Adjustable loft", "Subscription refills", "Cooling cover", "10-year core warranty"],
       price_point: "$149 + $12/quarter refills",
-      vibe: "Subscription economy meets sleep luxury"
+      vibe: "Subscription economy meets sleep luxury",
+      image: cloudCoreImg
     },
   ],
   "home office": [
@@ -176,7 +187,8 @@ export const PRE_GENERATED_CONCEPTS: Record<string, ProductConcept[]> = {
       description: "360-degree pet camera with treat tossing and calming pheromone diffuser. Two-way audio lets you talk to them. Detects barking/meowing and auto-plays your recorded soothing voice.",
       features: ["360° 4K camera", "Pheromone diffuser", "Treat tosser", "Cry detection"],
       price_point: "$199",
-      vibe: "Nest Cam meets dog whisperer"
+      vibe: "Nest Cam meets dog whisperer",
+      image: pawPodImg
     },
     {
       name: "ShedShield",
@@ -196,7 +208,8 @@ export const PRE_GENERATED_CONCEPTS: Record<string, ProductConcept[]> = {
       description: "A sleek, full-length mirror that conceals a high-torque digital cable resistance system. When off, it's just a beautiful mirror. When on, it's a personal trainer with 200lbs of resistance.",
       features: ["Zero footprint", "200lb digital weight", "Form correction AI", "Live classes"],
       price_point: "$1,495",
-      vibe: "Mirror meets Tesla"
+      vibe: "Mirror meets Tesla",
+      image: wallGymImg
     },
     {
       name: "BandMate",
@@ -216,7 +229,8 @@ export const PRE_GENERATED_CONCEPTS: Record<string, ProductConcept[]> = {
       description: "An inflatable, ergonomic sleep system that braces against the tray table (or seat back) to support your head forward, not sideways. Deflates to size of a phone. Face-cushion avoids makeup smudging.",
       features: ["Forward-lean support", "Phone-sized packability", "Washable face pad", "Air-flow channels"],
       price_point: "$45",
-      vibe: "Massage chair meets camping gear"
+      vibe: "Massage chair meets camping gear",
+      image: jetNapImg
     },
     {
       name: "PowerPort",

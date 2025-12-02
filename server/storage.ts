@@ -1,10 +1,12 @@
 import {
   users,
   sparks,
+  sharedSparks,
   type User,
   type UpsertUser,
   type InsertSpark,
   type Spark,
+  type SharedSpark,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc } from "drizzle-orm";
@@ -18,6 +20,10 @@ export interface IStorage {
   createSpark(spark: InsertSpark): Promise<Spark>;
   getUserSparks(userId: string): Promise<Spark[]>;
   getSpark(id: number): Promise<Spark | undefined>;
+  
+  // Shared spark operations
+  createSharedSpark(sparkId: number): Promise<SharedSpark>;
+  getSharedSpark(shareId: string): Promise<{ share: SharedSpark; spark: Spark } | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -62,6 +68,30 @@ export class DatabaseStorage implements IStorage {
   async getSpark(id: number): Promise<Spark | undefined> {
     const [spark] = await db.select().from(sparks).where(eq(sparks.id, id));
     return spark;
+  }
+
+  // Shared spark operations
+  async createSharedSpark(sparkId: number): Promise<SharedSpark> {
+    const [shared] = await db
+      .insert(sharedSparks)
+      .values({ sparkId })
+      .returning();
+    return shared;
+  }
+
+  async getSharedSpark(shareId: string): Promise<{ share: SharedSpark; spark: Spark } | undefined> {
+    const result = await db
+      .select()
+      .from(sharedSparks)
+      .innerJoin(sparks, eq(sharedSparks.sparkId, sparks.id))
+      .where(eq(sharedSparks.id, shareId));
+    
+    if (result.length === 0) return undefined;
+    
+    return {
+      share: result[0].shared_sparks,
+      spark: result[0].sparks,
+    };
   }
 }
 

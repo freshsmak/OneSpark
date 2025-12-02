@@ -122,5 +122,60 @@ export async function registerRoutes(
     }
   });
 
+  // Share a spark (create secret link)
+  app.post("/api/sparks/:id/share", isAuthenticated, async (req: any, res) => {
+    try {
+      const sparkId = parseInt(req.params.id);
+      const spark = await storage.getSpark(sparkId);
+      
+      if (!spark) {
+        return res.status(404).json({ message: "Spark not found" });
+      }
+      
+      // Verify user owns this spark
+      const userId = req.user.claims.sub;
+      if (spark.userId !== userId) {
+        return res.status(403).json({ message: "Forbidden" });
+      }
+      
+      // Create shared link
+      const shared = await storage.createSharedSpark(sparkId);
+      res.json({ shareId: shared.id });
+    } catch (error) {
+      console.error("Error sharing spark:", error);
+      res.status(500).json({ message: "Failed to share spark" });
+    }
+  });
+
+  // Get shared spark (public - no auth required)
+  app.get("/api/shared/:shareId", async (req, res) => {
+    try {
+      const { shareId } = req.params;
+      const result = await storage.getSharedSpark(shareId);
+      
+      if (!result) {
+        return res.status(404).json({ message: "Shared spark not found" });
+      }
+      
+      // Return just the spark data (not the user info for privacy)
+      res.json({
+        id: result.spark.id,
+        category: result.spark.category,
+        conceptName: result.spark.conceptName,
+        conceptTagline: result.spark.conceptTagline,
+        painSolved: result.spark.painSolved,
+        description: result.spark.description,
+        features: result.spark.features,
+        pricePoint: result.spark.pricePoint,
+        vibe: result.spark.vibe,
+        image: result.spark.image,
+        sharedAt: result.share.createdAt,
+      });
+    } catch (error) {
+      console.error("Error fetching shared spark:", error);
+      res.status(500).json({ message: "Failed to fetch shared spark" });
+    }
+  });
+
   return httpServer;
 }

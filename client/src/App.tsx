@@ -7,12 +7,14 @@ import { useAuth } from "@/hooks/useAuth";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import Landing from "@/pages/landing";
+import SharedSparkPage from "@/pages/shared";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
 
   return (
     <Switch>
+      <Route path="/shared/:shareId" component={SharedSparkPage} />
       {isLoading || !isAuthenticated ? (
         <Route path="/" component={Landing} />
       ) : (

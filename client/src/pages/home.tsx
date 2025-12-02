@@ -9,14 +9,19 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { Sparkles, RefreshCw, Zap, LogOut, Bot } from "lucide-react";
+import { Sparkles, RefreshCw, Zap, LogOut, Bot, Share2, Check, Copy } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import type { Spark } from "@shared/schema";
 import generatedImage from '@assets/generated_images/abstract_dark_neural_network_background_with_sparks.png';
 
+// Extended SparkResult that includes database ID for sharing
+interface SparkResultWithId extends SparkResult {
+  sparkId?: number;
+}
+
 // Convert database Spark to SparkResult format
-function sparkToResult(spark: Spark): SparkResult {
+function sparkToResult(spark: Spark): SparkResultWithId {
   return {
     category: spark.category,
     painPoints: [], // Not stored in DB
@@ -29,7 +34,8 @@ function sparkToResult(spark: Spark): SparkResult {
       price_point: spark.pricePoint,
       vibe: spark.vibe,
       image: spark.image || undefined,
-    }
+    },
+    sparkId: spark.id,
   };
 }
 
@@ -39,8 +45,12 @@ export default function Home() {
   const queryClient = useQueryClient();
   const [isGenerating, setIsGenerating] = useState(false);
   const [result, setResult] = useState<SparkResult | null>(null);
+  const [currentSparkId, setCurrentSparkId] = useState<number | null>(null);
   const [loadingStep, setLoadingStep] = useState(0);
   const [useAI, setUseAI] = useState(true);
+  const [shareLink, setShareLink] = useState<string | null>(null);
+  const [isSharing, setIsSharing] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
 
   // Load user's saved sparks
   const { data: savedSparks = [] } = useQuery<Spark[]>({
@@ -74,8 +84,11 @@ export default function Home() {
       }
       return res.json();
     },
-    onSuccess: () => {
+    onSuccess: (savedSpark: Spark) => {
       queryClient.invalidateQueries({ queryKey: ["/api/sparks"] });
+      setCurrentSparkId(savedSpark.id);
+      setShareLink(null);
+      setLinkCopied(false);
     },
     onError: (error: Error) => {
       if (isUnauthorizedError(error)) {
@@ -153,9 +166,53 @@ export default function Home() {
     }
   };
 
-  const handleHistorySelect = (spark: SparkResult) => {
+  const handleHistorySelect = (spark: SparkResultWithId) => {
     setResult(spark);
-    // Optionally scroll to card or give feedback
+    // Use the spark ID directly from the extended result
+    setCurrentSparkId(spark.sparkId || null);
+    setShareLink(null);
+    setLinkCopied(false);
+  };
+
+  const handleShare = async () => {
+    if (!currentSparkId) return;
+    
+    setIsSharing(true);
+    try {
+      const res = await fetch(`/api/sparks/${currentSparkId}/share`, {
+        method: "POST",
+      });
+      
+      if (!res.ok) {
+        throw new Error("Failed to create share link");
+      }
+      
+      const { shareId } = await res.json();
+      const link = `${window.location.origin}/shared/${shareId}`;
+      setShareLink(link);
+      
+      // Copy to clipboard
+      await navigator.clipboard.writeText(link);
+      setLinkCopied(true);
+      
+      toast({
+        title: "Link copied!",
+        description: "Share this secret link with one person",
+      });
+      
+      // Reset copied state after 3 seconds
+      setTimeout(() => setLinkCopied(false), 3000);
+      
+    } catch (error) {
+      console.error("Share failed:", error);
+      toast({
+        title: "Error",
+        description: "Failed to create share link",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSharing(false);
+    }
   };
 
   return (
@@ -281,16 +338,68 @@ export default function Home() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 1.5 }}
-                className="flex gap-4"
+                className="flex flex-col items-center gap-4"
               >
-                <Button 
-                  variant="outline" 
-                  onClick={handleGenerate}
-                  className="border-white/20 hover:bg-white/10 text-white gap-2"
-                >
-                  <RefreshCw className="w-4 h-4" />
-                  Generate Another
-                </Button>
+                <div className="flex gap-4">
+                  <Button 
+                    variant="outline" 
+                    onClick={handleGenerate}
+                    className="border-white/20 hover:bg-white/10 text-white gap-2"
+                    data-testid="button-generate-another"
+                  >
+                    <RefreshCw className="w-4 h-4" />
+                    Generate Another
+                  </Button>
+                  
+                  {currentSparkId && (
+                    <Button 
+                      variant="outline"
+                      onClick={handleShare}
+                      disabled={isSharing}
+                      className="border-primary/50 hover:bg-primary/10 text-primary gap-2"
+                      data-testid="button-share"
+                    >
+                      {isSharing ? (
+                        <RefreshCw className="w-4 h-4 animate-spin" />
+                      ) : linkCopied ? (
+                        <Check className="w-4 h-4" />
+                      ) : (
+                        <Share2 className="w-4 h-4" />
+                      )}
+                      {linkCopied ? "Copied!" : "Share"}
+                    </Button>
+                  )}
+                </div>
+                
+                {shareLink && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex items-center gap-2 bg-black/30 backdrop-blur-md px-3 py-2 rounded-lg border border-white/10"
+                  >
+                    <input 
+                      type="text" 
+                      readOnly 
+                      value={shareLink}
+                      className="bg-transparent text-white/70 text-xs font-mono w-64 outline-none"
+                      data-testid="input-share-link"
+                    />
+                    <Button 
+                      size="sm" 
+                      variant="ghost"
+                      onClick={async () => {
+                        await navigator.clipboard.writeText(shareLink);
+                        setLinkCopied(true);
+                        setTimeout(() => setLinkCopied(false), 3000);
+                        toast({ title: "Copied!", description: "Link copied to clipboard" });
+                      }}
+                      className="h-6 px-2 text-white/70 hover:text-white"
+                      data-testid="button-copy-link"
+                    >
+                      <Copy className="w-3 h-3" />
+                    </Button>
+                  </motion.div>
+                )}
               </motion.div>
             </div>
           )}

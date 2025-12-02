@@ -97,13 +97,19 @@ export default function Home() {
     },
   });
   
-  const LOADING_STEPS = [
+  const LOADING_STEPS = useAI ? [
+    "Scanning consumer trends...",
+    "Analyzing pain points...",
+    "Consulting Claude AI...",
+    "Crafting product concept...",
+    "Generating product image...",
+    "Rendering final design...",
+  ] : [
     "Scanning consumer trends...",
     "Searching Reddit for pain points...",
     "Analyzing Amazon reviews...",
     "Identifying market gaps...",
-    "Consulting Claude AI...",
-    "Refining product concept...",
+    "Remixing concepts...",
     "Designing product card..."
   ];
 

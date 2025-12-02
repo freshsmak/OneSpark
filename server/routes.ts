@@ -4,6 +4,7 @@ import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { insertSparkSchema } from "@shared/schema";
 import { generateProductConcept } from "./ai";
+import { generateProductImage } from "./imageGen";
 
 export async function registerRoutes(
   httpServer: Server,
@@ -82,7 +83,7 @@ export async function registerRoutes(
     }
   });
 
-  // AI-powered product concept generation
+  // AI-powered product concept generation with matching image
   app.post("/api/generate-spark", async (req, res) => {
     try {
       const { category, painPoints } = req.body;
@@ -91,8 +92,27 @@ export async function registerRoutes(
         return res.status(400).json({ message: "Category is required" });
       }
       
+      // Generate the product concept first
       const concept = await generateProductConcept(category, painPoints || []);
-      res.json(concept);
+      
+      // Generate a matching product image
+      let imageUrl: string | null = null;
+      try {
+        imageUrl = await generateProductImage({
+          name: concept.name,
+          tagline: concept.tagline,
+          category: category,
+          description: concept.description,
+          vibe: concept.vibe,
+        });
+      } catch (imageError) {
+        console.error("Image generation failed, continuing without image:", imageError);
+      }
+      
+      res.json({
+        ...concept,
+        image: imageUrl,
+      });
     } catch (error: any) {
       console.error("Error generating AI spark:", error);
       res.status(500).json({ 

@@ -72,7 +72,8 @@ function generateRemixedConcept(category: string, painPoints: PainPoint[]): Prod
   // Mix features from different concepts + add new ones
   const existingFeatures = randomPick(baseConcept.features, 2);
   const newFeatures = randomPick(REMIX_FEATURES, 2);
-  const features = [...new Set([...existingFeatures, ...newFeatures])].slice(0, 4);
+  const allFeatures = [...existingFeatures, ...newFeatures];
+  const features = allFeatures.filter((f, i) => allFeatures.indexOf(f) === i).slice(0, 4);
   
   // Generate price
   const basePrice = Math.floor(Math.random() * 150) + 29;
@@ -156,16 +157,26 @@ export async function generateSparkWithAI(requestedCategory?: string): Promise<S
     
     const aiConcept = await response.json();
     
-    // Get a random image from existing concepts to display
-    const allConcepts = Object.values(PRE_GENERATED_CONCEPTS).flat();
-    const randomImage = allConcepts[Math.floor(Math.random() * allConcepts.length)]?.image;
+    // Use the AI-generated image if available, otherwise fall back to category image
+    let image = aiConcept.image;
+    if (!image) {
+      // Fallback to category-matched image from pre-generated concepts
+      const categoryConcepts = PRE_GENERATED_CONCEPTS[category];
+      if (categoryConcepts && categoryConcepts.length > 0) {
+        image = categoryConcepts[0].image;
+      } else {
+        // Last resort: random pre-generated image
+        const allConcepts = Object.values(PRE_GENERATED_CONCEPTS).flat();
+        image = allConcepts[Math.floor(Math.random() * allConcepts.length)]?.image;
+      }
+    }
     
     return {
       category,
       painPoints,
       concept: {
         ...aiConcept,
-        image: randomImage,
+        image,
       },
       isAIGenerated: true,
     };

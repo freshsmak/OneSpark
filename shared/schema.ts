@@ -59,13 +59,3 @@ export const insertSparkSchema = createInsertSchema(sparks).omit({
 
 export type InsertSpark = typeof sparks.$inferInsert;
 export type Spark = typeof sparks.$inferSelect;
-
-// Shared sparks for secret link sharing
-export const sharedSparks = pgTable("shared_sparks", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  sparkId: integer("spark_id").notNull().references(() => sparks.id, { onDelete: "cascade" }),
-  createdAt: timestamp("created_at").defaultNow(),
-});
-
-export type SharedSpark = typeof sharedSparks.$inferSelect;
-export type InsertSharedSpark = typeof sharedSparks.$inferInsert;

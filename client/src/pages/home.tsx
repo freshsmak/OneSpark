@@ -89,11 +89,7 @@ export default function Home() {
         }, 500);
         return;
       }
-      toast({
-        title: "Error",
-        description: "Failed to save spark",
-        variant: "destructive",
-      });
+      console.error("Failed to save spark:", error);
     },
   });
   

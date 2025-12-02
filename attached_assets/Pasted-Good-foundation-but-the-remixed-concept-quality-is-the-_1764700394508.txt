@@ -1,0 +1,159 @@
+Good foundation, but the **remixed concept quality is the weak link**. When it generates a "novel" concept, the output is generic filler that won't excite anyone. Here's what I'd fix:
+
+## Critical Issues
+
+### 1. The Description Doesn't Describe Anything
+```typescript
+// Current - generic filler that says nothing
+const description = `A ${adjective} approach to ${category} that solves real problems...`;
+
+// Better - actually reference the pain point and solution
+const description = generateDescription(category, painToSolve);
+
+function generateDescription(category: string, pain: string): string {
+  const templates = [
+    `Designed specifically for people frustrated by ${pain.toLowerCase()}. Uses [mechanism] to deliver [benefit] without the usual compromises.`,
+    `We asked: what if ${category} actually solved ${pain.toLowerCase()}? The answer is a [adjective] system that [specific action].`,
+    `Born from the #1 complaint about ${category}: "${pain}" Finally, a solution that [specific benefit].`,
+  ];
+  // Fill in brackets with category-appropriate terms
+  return fillTemplate(randomPick(templates, 1)[0], category);
+}
+```
+
+### 2. Tagline Doesn't Connect to Pain Point
+```typescript
+// Current - random generic taglines
+const tagline = randomPick(taglineTemplates, 1)[0];
+
+// Better - pain-point-driven taglines
+function generateTagline(pain: string, category: string): string {
+  const painKeywords = extractKeywords(pain); // "bending over" → "back pain"
+  const templates = [
+    `No more ${painKeywords[0]}`,
+    `${capitalize(category)} without the ${painKeywords[0]}`,
+    `Finally. ${capitalize(category)} that ${solvesPhrase(pain)}.`,
+  ];
+  return randomPick(templates, 1)[0];
+}
+```
+
+### 3. Image Mismatch is Jarring
+```typescript
+// Current - reuses random image that may not match at all
+image: baseConcept.image,
+
+// Better - category-matched images or abstract/no image
+function getImageForConcept(category: string): string {
+  const categoryImages: Record<string, string[]> = {
+    "kitchen gadgets": ["/images/kitchen-1.jpg", "/images/kitchen-2.jpg"],
+    "sleep products": ["/images/sleep-1.jpg", "/images/sleep-2.jpg"],
+    // ...
+  };
+  const images = categoryImages[category] || categoryImages["default"];
+  return randomPick(images, 1)[0];
+}
+```
+
+### 4. Name Generation Creates Awkward Combos
+```typescript
+// Current can produce: "NovaKitchen", "GardeningPro", "PulseMax"
+// Some of these are fine, some are weird
+
+// Better - category-aware naming
+const CATEGORY_NAME_STYLES: Record<string, () => string> = {
+  "kitchen gadgets": () => {
+    const culinary = ["Slice", "Prep", "Dash", "Sear", "Mix"];
+    const tech = ["Smart", "Pro", "Plus", "One", "X"];
+    return randomPick(culinary, 1)[0] + randomPick(tech, 1)[0];
+  },
+  "sleep products": () => {
+    const calm = ["Dream", "Rest", "Drift", "Lull", "Slumber"];
+    const suffixes = ["Pod", "Cloud", "Wave", "Zone", "Nest"];
+    return randomPick(calm, 1)[0] + randomPick(suffixes, 1)[0];
+  },
+  // fallback for unknown categories
+  "default": () => { /* your current logic */ }
+};
+```
+
+## Structural Improvements
+
+### 5. Add Concept Coherence Scoring
+```typescript
+interface ConceptCoherence {
+  painAlignment: number;    // Does solution actually address pain?
+  nameRelevance: number;    // Does name suggest the category?
+  featureConsistency: number; // Do features support the description?
+}
+
+function scoreCoherence(concept: ProductConcept, pain: string): ConceptCoherence {
+  // Simple keyword overlap checks
+  // Regenerate if score is too low
+}
+```
+
+### 6. Prevent Duplicate Concepts in Session
+```typescript
+const generatedNames = new Set<string>();
+
+function generateUniqueName(category: string): string {
+  let attempts = 0;
+  let name: string;
+  do {
+    name = generateName(category);
+    attempts++;
+  } while (generatedNames.has(name) && attempts < 10);
+  generatedNames.add(name);
+  return name;
+}
+```
+
+### 7. Make the 40/60 Split Configurable
+```typescript
+interface SparkConfig {
+  noveltyBias: number; // 0-1, higher = more remixes
+  includePrice: boolean;
+  maxFeatures: number;
+}
+
+export async function generateSpark(
+  requestedCategory?: string,
+  config: SparkConfig = { noveltyBias: 0.6, includePrice: true, maxFeatures: 4 }
+): Promise<SparkResult> {
+  const useExisting = Math.random() > config.noveltyBias && concepts?.length > 0;
+  // ...
+}
+```
+
+## Quick Win: Better Remix Templates
+
+```typescript
+// Add to spark-data.ts
+export const SOLUTION_MECHANISMS = [
+  "magnetic attachment system",
+  "modular snap-together design", 
+  "built-in sensor technology",
+  "subscription refill model",
+  "foldable space-saving form factor",
+  "one-handed operation",
+  "self-cleaning mechanism",
+  "silent motor technology",
+];
+
+export const BENEFIT_PHRASES = [
+  "works in seconds, not minutes",
+  "lasts 10x longer than competitors",
+  "requires zero maintenance",
+  "fits any space or lifestyle",
+  "pays for itself in 3 months",
+];
+```
+
+Then use these in `generateRemixedConcept` to create descriptions that actually say something specific.
+
+---
+
+**Bottom line:** The remix function needs to produce output that's *as good as* your pre-generated concepts, not obviously filler. Right now a user would immediately notice when they got a remix vs. a real concept. The goal is indistinguishability.
+
+Want me to rewrite `generateRemixedConcept` with these improvements?

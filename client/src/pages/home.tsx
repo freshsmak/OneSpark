@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import confetti from "canvas-confetti";
 import { generateSpark, SparkResult } from "@/lib/spark-engine";
 import { ProductCard } from "@/components/spark-card";
+import { HistoryDrawer } from "@/components/history-drawer";
 import { Button } from "@/components/ui/button";
 import { Loader2, Sparkles, RefreshCw, Zap } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -11,6 +12,7 @@ import generatedImage from '@assets/generated_images/abstract_dark_neural_networ
 export default function Home() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [result, setResult] = useState<SparkResult | null>(null);
+  const [history, setHistory] = useState<SparkResult[]>([]);
   const [loadingStep, setLoadingStep] = useState(0);
   
   const LOADING_STEPS = [
@@ -34,12 +36,13 @@ export default function Home() {
 
   const handleGenerate = async () => {
     setIsGenerating(true);
-    setResult(null);
+    // Don't clear result immediately to prevent flash, but we will replace it
     setLoadingStep(0);
 
     try {
       const data = await generateSpark();
       setResult(data);
+      setHistory(prev => [data, ...prev]);
       
       // Trigger confetti
       confetti({
@@ -56,6 +59,11 @@ export default function Home() {
     }
   };
 
+  const handleHistorySelect = (spark: SparkResult) => {
+    setResult(spark);
+    // Optionally scroll to card or give feedback
+  };
+
   return (
     <div className="min-h-screen w-full text-foreground relative overflow-hidden flex flex-col items-center justify-center p-4">
       
@@ -68,13 +76,16 @@ export default function Home() {
       {/* Gradient Overlay */}
       <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/90 to-background z-0 pointer-events-none" />
 
-      <main className="relative z-10 w-full max-w-4xl flex flex-col items-center">
+      {/* History Drawer (Fixed UI Element) */}
+      <HistoryDrawer history={history} onSelect={handleHistorySelect} />
+
+      <main className="relative z-10 w-full max-w-4xl flex flex-col items-center pt-12 md:pt-0">
         
         {/* Header Section */}
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-12"
+          className="text-center mb-8 md:mb-12"
         >
           <Badge variant="outline" className="mb-4 px-3 py-1 border-primary/50 text-primary bg-primary/10 backdrop-blur-sm">
             AI-POWERED IDEATION
@@ -140,7 +151,8 @@ export default function Home() {
 
           {result && !isGenerating && (
             <div className="w-full flex flex-col items-center gap-8">
-              <ProductCard result={result} />
+              {/* Key is used to force re-mount animation when result changes */}
+              <ProductCard key={result.concept.name} result={result} />
               
               <motion.div 
                 initial={{ opacity: 0 }}

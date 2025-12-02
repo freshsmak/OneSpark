@@ -117,7 +117,7 @@ export default function Home() {
     if (isGenerating) {
       const interval = setInterval(() => {
         setLoadingStep(prev => (prev + 1) % LOADING_STEPS.length);
-      }, 600);
+      }, 2000);
       return () => clearInterval(interval);
     }
   }, [isGenerating]);

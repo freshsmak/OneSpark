@@ -47,7 +47,20 @@ export const CATEGORIES = [
   "camping gear", "desk organization", "laundry solutions", "shoe care",
   "water bottles", "lunch containers", "bike accessories", "yoga equipment",
   "home gym", "meditation aids", "journaling supplies", "plant care",
-  "coffee accessories", "wine accessories", "grilling tools"
+  "coffee accessories", "wine accessories", "grilling tools",
+  "standing desk accessories", "electric vehicle accessories", "apartment balcony gardening",
+  "senior mobility aids", "kids lunch packing", "home cocktail making",
+  "vinyl record accessories", "mechanical keyboard accessories", "drone accessories",
+  "ebike accessories", "rv and van life", "rock climbing gear", "fishing accessories",
+  "pickleball gear", "home theater", "smart home devices", "air quality",
+  "noise cancellation", "posture correction", "meal prep containers",
+  "dog walking gear", "cat enrichment", "aquarium supplies", "bird watching gear",
+  "home brewing", "tea accessories", "smoothie making", "ice cream making",
+  "bread baking", "sous vide cooking", "air fryer accessories", "instant pot accessories",
+  "remote work gear", "video call equipment", "podcast equipment", "streaming gear",
+  "golf accessories", "tennis gear", "swimming accessories", "running gear",
+  "hiking equipment", "skiing gear", "snowboarding accessories", "surfing gear",
+  "skateboarding gear", "scooter accessories", "motorcycle gear", "boat accessories"
 ];
 
 export const PAIN_POINTS_DB: Record<string, PainPoint[]> = {

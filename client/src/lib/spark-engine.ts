@@ -38,11 +38,12 @@ function capitalize(str: string): string {
 
 // Extract a usable pain phrase for taglines
 function extractPainPhrase(pain: string): { phrase: string; isClean: boolean } {
-  // Direct keyword matches that work great in taglines
+  // Direct keyword matches that work great in taglines (including high-emotion triggers)
   const cleanKeywords = [
     "back pain", "bending", "clutter", "noise", "anxiety", "odor", "jet lag",
     "frustration", "hassle", "mess", "stress", "confusion", "discomfort",
-    "overpriced", "bulky", "uncomfortable", "unreliable", "complexity"
+    "overpriced", "bulky", "uncomfortable", "unreliable", "complexity",
+    "guilt", "waste", "shame", "dread", "panic", "embarrassment"
   ];
   
   const lowerPain = pain.toLowerCase();
@@ -138,6 +139,7 @@ function generateDescription(category: string, pain: string): string {
   const mechanism = randomPick(mechanisms, 1)[0];
   const benefit = randomPick(BENEFIT_PHRASES, 1)[0];
   const adjective = randomPick(REMIX_ADJECTIVES, 1)[0].toLowerCase();
+  const name = generateCategoryName(category);
   
   const templates = [
     `Designed specifically for people frustrated by ${pain.toLowerCase()}. Uses ${mechanism} to deliver a solution that ${benefit}. No compromises, no workarounds.`,
@@ -145,6 +147,14 @@ function generateDescription(category: string, pain: string): string {
     `Born from the #1 complaint about ${category}: "${pain}" Finally, a solution with ${mechanism} that ${benefit}.`,
     `A ${adjective} approach to ${category} that tackles ${pain.toLowerCase()} head-on. Built with ${mechanism}, it ${benefit}. Premium materials, thoughtful design, zero learning curve.`,
     `The ${pain.toLowerCase()} stops here. We've engineered ${mechanism} into a ${adjective} package that ${benefit}. This is ${category} done right.`,
+    `What if ${category} were designed by people who actually use them? ${name} starts with ${pain.toLowerCase()} and engineers it away with ${mechanism}.`,
+    `Most ${category} ignore the real problem: ${pain.toLowerCase()}. We didn't. ${mechanism} means it ${benefit}.`,
+    `Forget everything you know about ${category}. We use ${mechanism} to ${benefit}. Simple as that.`,
+    `We talked to 100 people about ${category}. The #1 complaint? ${pain} Our answer: ${mechanism}.`,
+    `${pain}? Not anymore. This combines ${mechanism} with premium materials to ${benefit}.`,
+    `Everyone complained about ${pain.toLowerCase()}. Nobody did anything. Until now. ${mechanism} changes everything.`,
+    `The dirty secret of ${category}? They're designed to fail. This isn't. ${mechanism} ensures it ${benefit}.`,
+    `Stop settling for ${category} that ${pain.toLowerCase()}. Built with ${mechanism}, this actually ${benefit}.`,
   ];
   
   return randomPick(templates, 1)[0];

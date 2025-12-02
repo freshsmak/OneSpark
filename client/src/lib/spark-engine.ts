@@ -21,8 +21,9 @@ export interface SparkResult {
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-// Track generated names to prevent duplicates in session
+// Track generated names to prevent duplicates in session (with memory limit)
 const generatedNames = new Set<string>();
+const MAX_NAME_HISTORY = 100;
 
 // Helper to get random items from array
 function randomPick<T>(arr: T[], count: number = 1): T[] {
@@ -35,30 +36,46 @@ function capitalize(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-// Extract key pain keyword from pain point text
-function extractPainKeyword(pain: string): string {
-  const keywords = [
-    "back pain", "bending", "slippery", "clutter", "clean", "breaks", 
-    "confusing", "space", "flat", "disturbs", "temperature", "jarring",
-    "cable", "posture", "lighting", "noise", "malfunction", "hair",
-    "anxiety", "odor", "bulky", "snap", "form", "slip", "motivation",
-    "wrinkled", "charging", "uncomfortable", "jet lag", "cold", "messy",
-    "time-consuming", "forget", "leak", "narrow", "odors", "melts",
-    "water", "light", "overwatering", "pests", "repotting", "done",
-    "rust", "flare-ups", "heat up", "wanders", "uncomfortable", "impersonal",
-    "quiet", "wrong"
+// Extract a usable pain phrase for taglines
+function extractPainPhrase(pain: string): { phrase: string; isClean: boolean } {
+  // Direct keyword matches that work great in taglines
+  const cleanKeywords = [
+    "back pain", "bending", "clutter", "noise", "anxiety", "odor", "jet lag",
+    "frustration", "hassle", "mess", "stress", "confusion", "discomfort",
+    "overpriced", "bulky", "uncomfortable", "unreliable", "complexity"
   ];
   
   const lowerPain = pain.toLowerCase();
-  for (const keyword of keywords) {
+  for (const keyword of cleanKeywords) {
     if (lowerPain.includes(keyword)) {
-      return keyword;
+      return { phrase: keyword, isClean: true };
     }
   }
   
-  // Extract first noun-ish phrase
-  const words = pain.split(' ').slice(0, 3);
-  return words.join(' ').toLowerCase();
+  // Patterns that transform pain into clean phrases
+  const patterns: Array<{ regex: RegExp; extract: (m: RegExpMatchArray) => string }> = [
+    { regex: /constant(ly)? (bending|reaching|cleaning|waiting)/i, extract: m => m[2] },
+    { regex: /too (hot|cold|bulky|heavy|slow|noisy)/i, extract: m => `${m[1]} gear` },
+    { regex: /(\w+)s? (break|fail|leak|slip|fall|rust|snap|jam)/i, extract: m => `${m[2]}ing ${m[1].toLowerCase()}s` },
+    { regex: /hard to (clean|use|store|maintain|setup|fold)/i, extract: m => `hard-to-${m[1]} products` },
+    { regex: /(lose|lost|losing) (shape|grip|heat|cold)/i, extract: m => `losing ${m[2]}` },
+    { regex: /(flat|dead|worn) (pillow|battery|grip)s?/i, extract: m => `${m[1]} ${m[2]}s` },
+    { regex: /takes? (forever|too long|hours)/i, extract: () => "endless waiting" },
+    { regex: /can't (tell|find|reach|remember)/i, extract: m => `guessing` },
+    { regex: /don't know (when|how|if|what)/i, extract: () => "uncertainty" },
+    { regex: /forget to (water|charge|check)/i, extract: m => `forgetting to ${m[1]}` },
+  ];
+  
+  for (const { regex, extract } of patterns) {
+    const match = pain.match(regex);
+    if (match) {
+      const phrase = extract(match);
+      return { phrase, isClean: phrase.length < 20 && !phrase.includes('?') };
+    }
+  }
+  
+  // Fallback: mark as not clean so we use safe templates
+  return { phrase: "the hassle", isClean: false };
 }
 
 // Generate category-aware product name
@@ -71,6 +88,11 @@ function generateCategoryName(category: string): string {
 
 // Generate unique name (prevents duplicates in session)
 function generateUniqueName(category: string): string {
+  // Prevent memory leak by clearing when too large
+  if (generatedNames.size > MAX_NAME_HISTORY) {
+    generatedNames.clear();
+  }
+  
   let attempts = 0;
   let name: string;
   do {
@@ -81,19 +103,31 @@ function generateUniqueName(category: string): string {
   return name;
 }
 
-// Generate pain-point-driven tagline
+// Generate pain-point-driven tagline with guards for edge cases
 function generateTagline(pain: string, category: string): string {
-  const painKeyword = extractPainKeyword(pain);
+  const { phrase, isClean } = extractPainPhrase(pain);
+  const categoryWord = capitalize(category.split(' ')[0]);
   
-  const templates = [
-    `No more ${painKeyword}`,
-    `${capitalize(category.split(' ')[0])} without the ${painKeyword}`,
-    `Finally. ${capitalize(category)} that work.`,
-    `The end of ${painKeyword}`,
-    `${capitalize(category.split(' ')[0])} reimagined for real life`,
-    `Say goodbye to ${painKeyword}`,
-    `Because ${painKeyword} shouldn't be normal`,
+  // Pain-specific templates (only use if phrase is clean and short)
+  const painTemplates = [
+    `No more ${phrase}`,
+    `The end of ${phrase}`,
+    `Say goodbye to ${phrase}`,
   ];
+  
+  // Safe templates that always work
+  const safeTemplates = [
+    `${categoryWord} reimagined`,
+    `Finally. ${capitalize(category)} that work.`,
+    `${categoryWord} done right`,
+    `The last ${category.split(' ')[0]} you'll ever need`,
+    `${categoryWord} for modern life`,
+  ];
+  
+  // Use pain-specific templates only if the phrase is clean
+  const templates = isClean 
+    ? [...painTemplates, ...safeTemplates] 
+    : safeTemplates;
   
   return randomPick(templates, 1)[0];
 }
@@ -132,14 +166,27 @@ function getCategoryImage(category: string): string | undefined {
   return undefined;
 }
 
-// Generate a high-quality remixed concept
-function generateRemixedConcept(category: string, painPoints: PainPoint[]): ProductConcept {
-  // Pick random pain point to solve (prefer high intensity)
-  const highIntensityPains = painPoints.filter(p => p.intensity === "high");
-  const painSource = highIntensityPains.length > 0 ? highIntensityPains : painPoints;
-  const selectedPain = randomPick(painSource, 1)[0];
-  const painToSolve = selectedPain?.pain || `Common frustrations with ${category}`;
+// Check if a generated concept is coherent
+function isCoherentConcept(concept: ProductConcept): boolean {
+  // Name shouldn't be too long
+  if (concept.name.length > 15) return false;
   
+  // Tagline shouldn't repeat the name
+  if (concept.tagline.toLowerCase().includes(concept.name.toLowerCase())) return false;
+  
+  // Description should mention something related to the pain
+  const painWords = concept.pain_solved.toLowerCase().split(' ');
+  const descLower = concept.description.toLowerCase();
+  const descHasPainRef = painWords.some(w => 
+    w.length > 4 && descLower.includes(w)
+  );
+  if (!descHasPainRef) return false;
+  
+  return true;
+}
+
+// Build a single concept (used by generateRemixedConcept with retry)
+function buildConcept(category: string, painToSolve: string): ProductConcept {
   // Generate category-aware unique name
   const name = generateUniqueName(category);
   
@@ -172,7 +219,7 @@ function generateRemixedConcept(category: string, painPoints: PainPoint[]): Prod
   };
   
   const [minPrice, maxPrice] = priceBrackets[category] || priceBrackets["default"];
-  const basePrice = Math.floor(Math.random() * (maxPrice - minPrice)) + minPrice;
+  const basePrice = Math.floor(Math.random() * (maxPrice - minPrice + 1)) + minPrice;
   const pricePoint = `$${basePrice}`;
   
   // Pick coherent vibe
@@ -191,6 +238,25 @@ function generateRemixedConcept(category: string, painPoints: PainPoint[]): Prod
     vibe,
     image,
   };
+}
+
+// Generate a high-quality remixed concept with coherence validation
+function generateRemixedConcept(category: string, painPoints: PainPoint[]): ProductConcept {
+  // Pick random pain point to solve (prefer high intensity)
+  const highIntensityPains = painPoints.filter(p => p.intensity === "high");
+  const painSource = highIntensityPains.length > 0 ? highIntensityPains : painPoints;
+  const selectedPain = randomPick(painSource, 1)[0];
+  const painToSolve = selectedPain?.pain || `Common frustrations with ${category}`;
+  
+  // Try to generate a coherent concept (up to 3 attempts)
+  let concept: ProductConcept;
+  let attempts = 0;
+  do {
+    concept = buildConcept(category, painToSolve);
+    attempts++;
+  } while (!isCoherentConcept(concept) && attempts < 3);
+  
+  return concept;
 }
 
 // Main generation function (client-side)

@@ -1,0 +1,139 @@
+Much better. The structure is solid now. A few refinements:
+
+## Issues to Fix
+
+### 1. `extractPainKeyword` Can Produce Awkward Taglines
+
+```typescript
+// Pain: "Tools break after one season"
+// extractPainKeyword returns: "breaks"
+// Tagline: "No more breaks" ← awkward
+
+// Pain: "Hard to know when plants need water"
+// extractPainKeyword returns: "water"  
+// Tagline: "Kitchen without the water" ← nonsense
+```
+
+**Fix:** Return a phrase, not just a keyword, and validate it works in context:
+
+```typescript
+function extractPainPhrase(pain: string): { keyword: string; phrase: string } {
+  const patterns: Array<{ regex: RegExp; extract: (m: RegExpMatchArray) => string }> = [
+    { regex: /constant(ly)? (.+?)(ing|tion)/i, extract: m => m[2] + m[3] },
+    { regex: /too much (.+)/i, extract: m => m[1] },
+    { regex: /always (.+?)(ing|s\b)/i, extract: m => m[1] + m[2] },
+    { regex: /can't (.+)/i, extract: m => `not being able to ${m[1]}` },
+    { regex: /impossible to (.+)/i, extract: m => `struggling to ${m[1]}` },
+    { regex: /(\w+) that (break|fail|leak|slip|fall)/i, extract: m => `${m[2]}ing ${m[1]}` },
+  ];
+  
+  for (const { regex, extract } of patterns) {
+    const match = pain.match(regex);
+    if (match) {
+      return { keyword: extract(match), phrase: extract(match) };
+    }
+  }
+  
+  // Fallback: use first 3-4 words, cleaned up
+  const fallback = pain.toLowerCase().replace(/^(the |a |an )/i, '').split(' ').slice(0, 4).join(' ');
+  return { keyword: fallback, phrase: fallback };
+}
+```
+
+### 2. Tagline Templates Need Guards
+
+```typescript
+function generateTagline(pain: string, category: string): string {
+  const { phrase } = extractPainPhrase(pain);
+  
+  // Only use pain-specific templates if phrase is short and clean
+  const usePainPhrase = phrase.length < 25 && !phrase.includes('?');
+  
+  const painTemplates = [
+    `No more ${phrase}`,
+    `The end of ${phrase}`,
+    `Say goodbye to ${phrase}`,
+  ];
+  
+  const safeTemplates = [
+    `${capitalize(category.split(' ')[0])} reimagined`,
+    `Finally. ${capitalize(category)} that work.`,
+    `${capitalize(category.split(' ')[0])} done right`,
+    `The last ${category.split(' ')[0]} you'll ever need`,
+  ];
+  
+  const templates = usePainPhrase 
+    ? [...painTemplates, ...safeTemplates] 
+    : safeTemplates;
+  
+  return randomPick(templates, 1)[0];
+}
+```
+
+### 3. Session-Scoped Name Tracking
+
+```typescript
+// Current: module-level Set grows forever
+const generatedNames = new Set<string>();
+
+// Better: pass session context or use WeakRef/TTL
+export function createSparkSession() {
+  const generatedNames = new Set<string>();
+  
+  return {
+    generateSpark: (category?: string) => generateSparkWithSession(category, generatedNames),
+    reset: () => generatedNames.clear(),
+  };
+}
+
+// Or simpler: limit Set size
+function generateUniqueName(category: string): string {
+  if (generatedNames.size > 100) {
+    generatedNames.clear(); // Reset to prevent memory leak
+  }
+  // ... rest of function
+}
+```
+
+### 4. Add a Coherence Check (Optional but Nice)
+
+```typescript
+function isCoherentConcept(concept: ProductConcept, category: string): boolean {
+  // Name shouldn't be too long
+  if (concept.name.length > 15) return false;
+  
+  // Tagline shouldn't repeat the name
+  if (concept.tagline.toLowerCase().includes(concept.name.toLowerCase())) return false;
+  
+  // Description should mention the pain
+  const painWords = concept.pain_solved.toLowerCase().split(' ');
+  const descHasPainRef = painWords.some(w => 
+    w.length > 4 && concept.description.toLowerCase().includes(w)
+  );
+  if (!descHasPainRef) return false;
+  
+  return true;
+}
+
+// In generateRemixedConcept:
+let concept: ProductConcept;
+let attempts = 0;
+do {
+  concept = buildConcept(category, painPoints);
+  attempts++;
+} while (!isCoherentConcept(concept, category) && attempts < 3);
+```
+
+## What's Working Well
+
+- Category-specific naming, features, and pricing
+- Pain point prioritization (high intensity first)
+- Duplicate prevention
+- Rich description templates with mechanisms and benefits
+- Clean separation of concerns
+
+## Verdict
+
+This is now **production-ready for an MVP**. The issues above are polish—they'll prevent occasional weird outputs but won't block launch. Ship it, collect user feedback on which sparks feel "off," and refine the templates based on real data.
+
+One suggestion: add a simple "report this spark" button so users can flag weird generations. That feedback is gold for tuning.

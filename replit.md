@@ -20,7 +20,7 @@ Preferred communication style: Simple, everyday language.
 
 **UI Component System**: shadcn/ui components built on Radix UI primitives with Tailwind CSS for styling. The design system follows a "Dark Future/Spark Theme" with deep space blue backgrounds and electric accent colors.
 
-**State Management**: TanStack Query (React Query) for server state management with custom query client configuration. Authentication state is managed through a custom `useAuth` hook that queries the user endpoint.
+**State Management**: TanStack Query (React Query) for server state management with custom query client configuration. Authentication state is managed through Clerk's React hooks integrated into a custom `useAuth` hook.
 
 **Routing**: wouter for lightweight client-side routing. The app has two main routes:
 - Landing page (unauthenticated users)
@@ -38,10 +38,10 @@ Preferred communication style: Simple, everyday language.
 **Framework**: Express.js with TypeScript running on Node.js
 
 **API Design**: RESTful API with the following main endpoints:
-- `/api/auth/*` - Authentication endpoints using Replit Auth
+- `/api/auth/*` - Authentication endpoints using Clerk
 - `/api/sparks` - CRUD operations for product concepts
 
-**Authentication**: Replit OpenID Connect (OIDC) authentication with Passport.js strategy. Sessions are stored in PostgreSQL using connect-pg-simple.
+**Authentication**: Clerk authentication with Express middleware. User sessions are managed by Clerk, and user data is automatically synced to PostgreSQL for local queries.
 
 **AI Integration**: Anthropic Claude API for product concept generation. The AI service accepts a product category and pain points, then generates structured JSON responses with product details.
 
@@ -61,8 +61,8 @@ Preferred communication style: Simple, everyday language.
 
 **Schema Design**:
 
-1. **sessions** table - Express session storage with expiration tracking
-2. **users** table - User profiles from Replit Auth (id, email, firstName, lastName, profileImageUrl, timestamps)
+1. **sessions** table - Express session storage with expiration tracking (optional, may not be needed with Clerk)
+2. **users** table - User profiles synced from Clerk (id, email, firstName, lastName, profileImageUrl, timestamps)
 3. **sparks** table - Generated product concepts with the following structure:
    - User foreign key with cascade delete
    - Category (e.g., "kitchen gadgets", "pet products")
@@ -80,7 +80,7 @@ Preferred communication style: Simple, everyday language.
 - **Anthropic Claude API**: Primary AI service for product concept generation. Configured via environment variables for API key and optional base URL override. Generates structured product concepts from pain points and categories.
 
 **Authentication**:
-- **Replit Auth (OIDC)**: OAuth 2.0 / OpenID Connect provider for user authentication. Configured with issuer URL, client credentials, and session management.
+- **Clerk**: Modern authentication platform with Express middleware integration. Provides user management, sign-in/sign-up flows, and session handling. User data is automatically synced to local PostgreSQL database for application queries. Configured via publishable key (frontend) and secret key (backend) environment variables.
 
 **Database**:
 - **Neon PostgreSQL**: Serverless PostgreSQL database accessed via connection string. Supports WebSocket connections for real-time features.

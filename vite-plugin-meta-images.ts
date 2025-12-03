@@ -56,16 +56,23 @@ export function metaImagesPlugin(): Plugin {
 }
 
 function getDeploymentUrl(): string | null {
-  if (process.env.REPLIT_INTERNAL_APP_DOMAIN) {
-    const url = `https://${process.env.REPLIT_INTERNAL_APP_DOMAIN}`;
-    log('[meta-images] using internal app domain:', url);
+  // For Vercel deployment
+  if (process.env.VERCEL_URL) {
+    const url = `https://${process.env.VERCEL_URL}`;
+    log('[meta-images] using Vercel deployment URL:', url);
     return url;
   }
 
-  if (process.env.REPLIT_DEV_DOMAIN) {
-    const url = `https://${process.env.REPLIT_DEV_DOMAIN}`;
-    log('[meta-images] using dev domain:', url);
+  // For custom domain on Vercel
+  if (process.env.NEXT_PUBLIC_APP_URL) {
+    const url = process.env.NEXT_PUBLIC_APP_URL;
+    log('[meta-images] using custom app URL:', url);
     return url;
+  }
+
+  // For local development
+  if (process.env.NODE_ENV === "development") {
+    return "http://localhost:5000";
   }
 
   return null;

@@ -8,6 +8,22 @@ import memoize from "memoizee";
 import connectPg from "connect-pg-simple";
 import { storage } from "./storage";
 
+// Export UserSession for use in routes
+export interface UserSession {
+  claims: {
+    sub: string;
+    email?: string;
+    first_name?: string;
+    last_name?: string;
+    profile_image_url?: string;
+    exp?: number;
+    [key: string]: any;
+  };
+  access_token?: string;
+  refresh_token?: string;
+  expires_at?: number;
+}
+
 const getOidcConfig = memoize(
   async () => {
     return await client.discovery(
@@ -74,10 +90,10 @@ export async function setupAuth(app: Express) {
     tokens: client.TokenEndpointResponse & client.TokenEndpointResponseHelpers,
     verified: passport.AuthenticateCallback
   ) => {
-    const user = {};
+    const user: Partial<UserSession> = {};
     updateUserSession(user, tokens);
     await upsertUser(tokens.claims());
-    verified(null, user);
+    verified(null, user as Express.User);
   };
 
   // Keep track of registered strategies
@@ -133,9 +149,9 @@ export async function setupAuth(app: Express) {
 }
 
 export const isAuthenticated: RequestHandler = async (req, res, next) => {
-  const user = req.user as any;
+  const user = req.user as UserSession;
 
-  if (!req.isAuthenticated() || !user.expires_at) {
+  if (!req.isAuthenticated() || !user?.expires_at) {
     return res.status(401).json({ message: "Unauthorized" });
   }
 

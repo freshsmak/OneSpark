@@ -54,6 +54,7 @@ REQUIREMENTS:
 - Features should be concrete and differentiating
 - Price should be realistic for the category
 - Vibe should reference known brands/aesthetics for instant understanding (e.g., "Apple meets IKEA")
+- Avoid generating concepts that sound too similar to existing products (e.g., no basic smart feeders for pet cams).
 
 BE CREATIVE. Don't just describe existing products. Invent something NEW that would make someone say "why doesn't this exist?!"
 

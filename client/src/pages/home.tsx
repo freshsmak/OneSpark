@@ -11,6 +11,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { Sparkles, RefreshCw, Zap, LogOut, Bot } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { SignOutButton } from "@clerk/clerk-react";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import type { Spark } from "@shared/schema";
 import generatedImage from '@assets/generated_images/abstract_dark_neural_network_background_with_sparks.png';
@@ -81,18 +82,15 @@ export default function Home() {
       if (isUnauthorizedError(error)) {
         toast({
           title: "Unauthorized",
-          description: "You are logged out. Logging in again...",
+          description: "Your session has expired. Please sign in again.",
           variant: "destructive",
         });
-        setTimeout(() => {
-          window.location.href = "/api/login";
-        }, 500);
         return;
       }
       console.error("Failed to save spark:", error);
     },
   });
-  
+
   const LOADING_STEPS = useAI ? [
     "Scanning consumer trends...",
     "Analyzing pain points...",
@@ -125,10 +123,10 @@ export default function Home() {
     try {
       const data = useAI ? await generateSparkWithAI() : await generateSpark();
       setResult(data);
-      
+
       // Save to database
       saveSpark.mutate(data);
-      
+
       // Trigger confetti with extra pizzazz for AI-generated
       confetti({
         particleCount: useAI ? 150 : 100,
@@ -136,7 +134,7 @@ export default function Home() {
         origin: { y: 0.6 },
         colors: useAI ? ['#ff0099', '#00ffff', '#ffff00', '#ffffff'] : ['#ff0099', '#00ffff', '#ffffff']
       });
-      
+
     } catch (error) {
       console.error("Generation failed", error);
       toast({
@@ -155,13 +153,13 @@ export default function Home() {
 
   return (
     <div className="min-h-screen w-full text-foreground relative overflow-hidden flex flex-col items-center justify-center p-4">
-      
+
       {/* Background Image */}
-      <div 
+      <div
         className="absolute inset-0 bg-cover bg-center z-0 opacity-30 pointer-events-none"
         style={{ backgroundImage: `url(${generatedImage})` }}
       />
-      
+
       {/* Gradient Overlay */}
       <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/90 to-background z-0 pointer-events-none" />
 
@@ -169,20 +167,21 @@ export default function Home() {
       <HistoryDrawer history={history} onSelect={handleHistorySelect} />
 
       {/* Logout Button */}
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => window.location.href = '/api/logout'}
-        className="fixed top-4 left-4 z-50 bg-black/20 backdrop-blur-md border border-white/10 text-white hover:bg-white/10 gap-2"
-      >
-        <LogOut className="w-4 h-4" />
-        <span className="hidden sm:inline">Logout</span>
-      </Button>
+      <SignOutButton>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="fixed top-4 left-4 z-50 bg-black/20 backdrop-blur-md border border-white/10 text-white hover:bg-white/10 gap-2"
+        >
+          <LogOut className="w-4 h-4" />
+          <span className="hidden sm:inline">Logout</span>
+        </Button>
+      </SignOutButton>
 
       <main className="relative z-10 w-full max-w-4xl flex flex-col items-center pt-12 md:pt-0">
-        
+
         {/* Header Section */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-8 md:mb-12"
@@ -194,16 +193,16 @@ export default function Home() {
             ONE <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary animate-pulse">SPARK</span>
           </h1>
           <p className="text-lg text-muted-foreground max-w-lg mx-auto leading-relaxed">
-            Fully automated consumer product ideation. 
-            Turn real pain points into billion-dollar concepts instantly.
+            Fully automated consumer product ideation.
+            Turn real pain points into million-dollar concepts instantly.
           </p>
         </motion.div>
 
         {/* Action Area */}
         <div className="w-full flex flex-col items-center gap-8 min-h-[600px]">
-          
+
           {!result && !isGenerating && (
-            <motion.div 
+            <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               className="flex flex-col items-center justify-center flex-1"
@@ -224,9 +223,9 @@ export default function Home() {
                   Claude AI
                 </span>
               </div>
-              
-              <Button 
-                size="lg" 
+
+              <Button
+                size="lg"
                 onClick={handleGenerate}
                 className="h-20 px-12 text-xl rounded-full bg-white text-black hover:bg-gray-200 hover:scale-105 transition-all duration-300 shadow-[0_0_40px_-10px_rgba(255,255,255,0.5)] group"
                 data-testid="button-generate"
@@ -241,7 +240,7 @@ export default function Home() {
           )}
 
           {isGenerating && (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="flex flex-col items-center justify-center flex-1 gap-6"
@@ -271,15 +270,15 @@ export default function Home() {
             <div className="w-full flex flex-col items-center gap-8">
               {/* Key is used to force re-mount animation when result changes */}
               <ProductCard key={result.concept.name} result={result} />
-              
-              <motion.div 
+
+              <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 1.5 }}
                 className="flex gap-4"
               >
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   onClick={handleGenerate}
                   className="border-white/20 hover:bg-white/10 text-white gap-2"
                   data-testid="button-generate-another"

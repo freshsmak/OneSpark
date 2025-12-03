@@ -5,6 +5,8 @@ import { rm, readFile } from "fs/promises";
 // server deps to bundle to reduce openat(2) syscalls
 // which helps cold start times
 const allowlist = [
+  "@clerk/clerk-sdk-node",
+  "@clerk/express",
   "@google/generative-ai",
   "@neondatabase/serverless",
   "axios",

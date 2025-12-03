@@ -16,7 +16,8 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.71.0",
-    "@clerk/clerk-sdk-node": "^4.13.23",
+    "@clerk/clerk-react": "^5.57.1",
+    "@clerk/clerk-sdk-node": "^5.1.6",
     "@clerk/express": "^1.7.54",
     "@clerk/react": "^5.54.0",
     "@google/genai": "^1.30.0",
@@ -103,16 +104,17 @@
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "@types/ws": "^8.5.13",
-    "@vercel/node": "^5.5.14",
+    "@vercel/node": "^2.3.0",
     "@vitejs/plugin-react": "^5.0.4",
     "autoprefixer": "^10.4.21",
-    "drizzle-kit": "^0.31.4",
+    "drizzle-kit": "^0.31.7",
     "esbuild": "^0.25.0",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.14",
     "tsx": "^4.20.5",
     "typescript": "5.6.3",
-    "vite": "^7.1.9"
+    "vite": "^7.1.9",
+    "vite-tsconfig-paths": "^5.1.4"
   },
   "optionalDependencies": {
     "bufferutil": "^4.0.8"

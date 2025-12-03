@@ -1,95 +1,48 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import confetti from "canvas-confetti";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { generateSpark, generateSparkWithAI, SparkResult } from "@/lib/spark-engine";
 import { ProductCard } from "@/components/spark-card";
 import { HistoryDrawer } from "@/components/history-drawer";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { Sparkles, RefreshCw, Zap, LogOut, Bot } from "lucide-react";
+import { Sparkles, RefreshCw, Zap, Bot } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { SignOutButton } from "@clerk/clerk-react";
-import { isUnauthorizedError } from "@/lib/authUtils";
-import type { Spark } from "@shared/schema";
 import generatedImage from '@assets/generated_images/abstract_dark_neural_network_background_with_sparks.png';
 
-// Convert database Spark to SparkResult format
-function sparkToResult(spark: Spark): SparkResult {
-  return {
-    category: spark.category,
-    painPoints: [], // Not stored in DB
-    concept: {
-      name: spark.conceptName,
-      tagline: spark.conceptTagline,
-      pain_solved: spark.painSolved,
-      description: spark.description,
-      features: spark.features as string[],
-      price_point: spark.pricePoint,
-      vibe: spark.vibe,
-      image: spark.image || undefined,
-    },
-  };
+// Local storage key for saving sparks
+const SPARKS_STORAGE_KEY = 'onespark_history';
+
+function loadSparksFromStorage(): SparkResult[] {
+  try {
+    const stored = localStorage.getItem(SPARKS_STORAGE_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveSparksToStorage(sparks: SparkResult[]) {
+  try {
+    localStorage.setItem(SPARKS_STORAGE_KEY, JSON.stringify(sparks.slice(0, 50))); // Keep last 50
+  } catch {
+    // Ignore storage errors
+  }
 }
 
 export default function Home() {
-  const { user } = useAuth();
   const { toast } = useToast();
-  const queryClient = useQueryClient();
   const [isGenerating, setIsGenerating] = useState(false);
   const [result, setResult] = useState<SparkResult | null>(null);
   const [loadingStep, setLoadingStep] = useState(0);
   const [useAI, setUseAI] = useState(true);
+  const [history, setHistory] = useState<SparkResult[]>([]);
 
-  // Load user's saved sparks
-  const { data: savedSparks = [] } = useQuery<Spark[]>({
-    queryKey: ["/api/sparks"],
-    enabled: !!user,
-  });
-
-  const history = savedSparks.map(sparkToResult);
-
-  // Mutation to save a spark
-  const saveSpark = useMutation({
-    mutationFn: async (spark: SparkResult) => {
-      const res = await fetch("/api/sparks", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          category: spark.category,
-          conceptName: spark.concept.name,
-          conceptTagline: spark.concept.tagline,
-          painSolved: spark.concept.pain_solved,
-          description: spark.concept.description,
-          features: spark.concept.features,
-          pricePoint: spark.concept.price_point,
-          vibe: spark.concept.vibe,
-          image: spark.concept.image,
-        }),
-      });
-      if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.message || "Failed to save spark");
-      }
-      return res.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/sparks"] });
-    },
-    onError: (error: Error) => {
-      if (isUnauthorizedError(error)) {
-        toast({
-          title: "Unauthorized",
-          description: "Your session has expired. Please sign in again.",
-          variant: "destructive",
-        });
-        return;
-      }
-      console.error("Failed to save spark:", error);
-    },
-  });
+  // Load history from local storage on mount
+  useEffect(() => {
+    setHistory(loadSparksFromStorage());
+  }, []);
 
   const LOADING_STEPS = useAI ? [
     "Scanning consumer trends...",
@@ -124,8 +77,10 @@ export default function Home() {
       const data = useAI ? await generateSparkWithAI() : await generateSpark();
       setResult(data);
 
-      // Save to database
-      saveSpark.mutate(data);
+      // Save to local storage
+      const updatedHistory = [data, ...history];
+      setHistory(updatedHistory);
+      saveSparksToStorage(updatedHistory);
 
       // Trigger confetti with extra pizzazz for AI-generated
       confetti({
@@ -165,18 +120,6 @@ export default function Home() {
 
       {/* History Drawer (Fixed UI Element) */}
       <HistoryDrawer history={history} onSelect={handleHistorySelect} />
-
-      {/* Logout Button */}
-      <SignOutButton>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="fixed top-4 left-4 z-50 bg-black/20 backdrop-blur-md border border-white/10 text-white hover:bg-white/10 gap-2"
-        >
-          <LogOut className="w-4 h-4" />
-          <span className="hidden sm:inline">Logout</span>
-        </Button>
-      </SignOutButton>
 
       <main className="relative z-10 w-full max-w-4xl flex flex-col items-center pt-12 md:pt-0">
 

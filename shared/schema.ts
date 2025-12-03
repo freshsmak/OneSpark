@@ -52,9 +52,18 @@ export const sparks = pgTable("sparks", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-export const insertSparkSchema = createInsertSchema(sparks).omit({
-  id: true,
-  createdAt: true,
+// Manual insert schema to avoid drizzle-zod type issues
+export const insertSparkSchema = z.object({
+  userId: z.string(),
+  category: z.string(),
+  conceptName: z.string(),
+  conceptTagline: z.string(),
+  painSolved: z.string(),
+  description: z.string(),
+  features: z.array(z.string()),
+  pricePoint: z.string(),
+  vibe: z.string(),
+  image: z.string().nullable().optional(),
 });
 
 export type InsertSpark = typeof sparks.$inferInsert;

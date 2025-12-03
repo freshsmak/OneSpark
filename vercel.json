@@ -5,20 +5,26 @@
   "devCommand": "npm run dev",
   "installCommand": "npm install",
   "framework": null,
-  "rewrites": [
+  "builds": [
     {
-      "source": "/api/(.*)",
-      "destination": "/api/index"
+      "src": "api/index.ts",
+      "use": "@vercel/node@3.2.0"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/index.ts"
     },
     {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "src": "/(.*)",
+      "dest": "/index.html"
     }
   ],
   "functions": {
     "api/index.ts": {
-      "runtime": "nodejs20.x",
-      "maxDuration": 60
+      "runtime": "nodejs18.x",
+      "maxDuration": 30
     }
   },
   "headers": [

@@ -1,11 +1,15 @@
 import { GoogleGenAI, Modality } from "@google/genai";
 
+// Support both Replit integration keys and standard API keys
+const geminiApiKey = process.env.AI_INTEGRATIONS_GEMINI_API_KEY || process.env.GEMINI_API_KEY;
+const geminiBaseUrl = process.env.AI_INTEGRATIONS_GEMINI_BASE_URL;
+
 const genAI = new GoogleGenAI({
-  apiKey: process.env.AI_INTEGRATIONS_GEMINI_API_KEY!,
-  httpOptions: {
+  apiKey: geminiApiKey!,
+  httpOptions: geminiBaseUrl ? {
     apiVersion: "",
-    baseUrl: process.env.AI_INTEGRATIONS_GEMINI_BASE_URL,
-  },
+    baseUrl: geminiBaseUrl,
+  } : undefined,
 });
 
 export interface ProductImagePrompt {

@@ -3,6 +3,7 @@ import { GoogleGenAI, Modality } from "@google/genai";
 // Support both Replit integration keys and standard API keys
 const geminiApiKey = process.env.AI_INTEGRATIONS_GEMINI_API_KEY || process.env.GEMINI_API_KEY;
 const geminiBaseUrl = process.env.AI_INTEGRATIONS_GEMINI_BASE_URL;
+console.log("Gemini API Key status:", geminiApiKey ? `Found (${geminiApiKey.slice(0, 10)}...)` : "MISSING");
 
 const genAI = new GoogleGenAI({
   apiKey: geminiApiKey!,

@@ -1,8 +1,11 @@
 import Anthropic from "@anthropic-ai/sdk";
 
 // Support both Replit integration keys and standard API keys
+const apiKey = process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY || process.env.ANTHROPIC_API_KEY;
+console.log("Anthropic API Key status:", apiKey ? `Found (${apiKey.slice(0, 10)}...)` : "MISSING");
+
 const anthropic = new Anthropic({
-  apiKey: process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY || process.env.ANTHROPIC_API_KEY,
+  apiKey,
   baseURL: process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL || undefined,
 });
 

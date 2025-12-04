@@ -10,6 +10,14 @@ export async function registerRoutes(
 
   // AI-powered product concept generation with matching image
   app.post("/api/generate-spark", async (req: Request, res: Response) => {
+    // Debug: Log env var status on every request
+    console.log("=== ENV VAR DEBUG ===");
+    console.log("ANTHROPIC_API_KEY:", process.env.ANTHROPIC_API_KEY ? "SET" : "MISSING");
+    console.log("GEMINI_API_KEY:", process.env.GEMINI_API_KEY ? "SET" : "MISSING");
+    console.log("AI_INTEGRATIONS_ANTHROPIC_API_KEY:", process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY ? "SET" : "MISSING");
+    console.log("AI_INTEGRATIONS_GEMINI_API_KEY:", process.env.AI_INTEGRATIONS_GEMINI_API_KEY ? "SET" : "MISSING");
+    console.log("=====================");
+
     try {
       const { category, painPoints } = req.body;
 
